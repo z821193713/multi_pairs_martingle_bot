@@ -42,10 +42,10 @@ class Config:
         self.proxy_port = 0  # proxy port
         self.blocked_lists = []  # symbols ['BTCUSDT', 'ETHUSDT', ... ], the symbols in here will not trade.
         self.allowed_lists = []  # symbols ['BTCUSDT', 'ETHUSDT', ... ], if the list contains value(not empty), it will only trade the symbol in this lists
-        self.turnover_threshold = 100,000  # 100k usdt, the trading value should be higher than 100k usdt in an hour.
+        self.turnover_threshold = 100, 000  # 100k usdt, the trading value should be higher than 100k usdt in an hour.
         self.stop_loss_pct = 0  # stop loss percent, zero means not stop loss. 止损百分比, 设置为零表示不用设置百分比。
 
-        self.taker_price_pct = 0.005 # taker price.
+        self.taker_price_pct = 0.005  # taker price.
 
     def loads(self, config_file=None):
         """ Load config file.

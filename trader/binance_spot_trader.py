@@ -51,7 +51,7 @@ class BinanceSpotTrader(object):
         self.positions = Positions('spot_positions.json')
         self.initial_id = 0
 
-    def get_exchange_info(self):
+    def get_exchange_info(self) -> None:
         data = self.http_client.get_exchange_info()
         if isinstance(data, dict):
             items = data.get('symbols', [])
@@ -243,12 +243,13 @@ class BinanceSpotTrader(object):
                     drawdown_pct = pos_data.get('profit_max_price', 0) / bid_price - 1
 
                     dump_pct = pos_data.get('last_entry_price', 0) / bid_price - 1
-                    current_increase_pos_count = pos_data.get('current_increase_pos_count',1)
+                    current_increase_pos_count = pos_data.get('current_increase_pos_count', 1)
 
                     loss_pct = avg_price / bid_price - 1  # loss percent.
 
                     # there is profit here, consider whether exit this position.
-                    if profit_pct >= config.exit_profit_pct and drawdown_pct >= config.profit_drawdown_pct and len(self.sell_orders_dict.get(s, [])) <= 0:
+                    if profit_pct >= config.exit_profit_pct and drawdown_pct >= config.profit_drawdown_pct and len(
+                            self.sell_orders_dict.get(s, [])) <= 0:
                         """
                         the position is profitable and drawdown meets requirements.
                         """
@@ -286,7 +287,7 @@ class BinanceSpotTrader(object):
                         # the price tick and quantity precision.
 
                         qty = floor_to(abs(pos), min_qty)
-                        price = ask_price * (1-config.taker_price_pct)
+                        price = ask_price * (1 - config.taker_price_pct)
                         price = round_to(price, min_price)
 
                         sell_order = self.http_client.place_order(symbol=s, order_side=OrderSide.SELL,
@@ -348,8 +349,7 @@ class BinanceSpotTrader(object):
         index = 0
         for signal in signal_data.get('signals', []):
             s = signal['symbol']
-            if signal['signal'] == 1 and index < left_times and s not in pos_symbols and signal[
-                'hour_turnover'] >= config.turnover_threshold:
+            if signal['signal'] == 1 and index < left_times and s not in pos_symbols and signal['hour_turnover'] >= config.turnover_threshold:
                 ## allowed_lists and blocked_lists cannot be satisfied at the same time
                 if len(config.allowed_lists) > 0 and s in config.allowed_lists:
                     index += 1

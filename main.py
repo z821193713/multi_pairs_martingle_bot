@@ -58,28 +58,28 @@ def get_data(trader: Union[BinanceFutureTrader, BinanceSpotTrader]):
         klines = trader.get_klines(symbol=symbol.upper(), interval=Interval.HOUR_1, limit=100)
         if len(klines) > 0:
             df = pd.DataFrame(klines, dtype=np.float64,
-                              columns=['open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'turnover', 'a2',
+                              columns=['open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'turnover',
+                                       'a2',
                                        'a3', 'a4', 'a5'])
             df = df[['open_time', 'open', 'high', 'low', 'close', 'volume', 'turnover']]
             df.set_index('open_time', inplace=True)
             df.index = pd.to_datetime(df.index, unit='ms') + pd.Timedelta(hours=8)
 
             df_4hour = df.resample(rule='4H').agg({'open': 'first',
-                                        'high': 'max',
-                                        'low': 'min',
-                                        'close': 'last',
-                                        'volume': 'sum',
-                                        'turnover': 'sum'
-                                        })
+                                                   'high': 'max',
+                                                   'low': 'min',
+                                                   'close': 'last',
+                                                   'volume': 'sum',
+                                                   'turnover': 'sum'
+                                                   })
 
             # print(df)
 
             # calculate the pair's price change is one hour. you can modify the code below.
             pct = df['close'] / df['open'] - 1
-            pct_4h = df_4hour['close']/df_4hour['open'] - 1
+            pct_4h = df_4hour['close'] / df_4hour['open'] - 1
 
-            value = {'pct': pct[-1], 'pct_4h':pct_4h[-1] , 'symbol': symbol, 'hour_turnover': df['turnover'][-1]}
-
+            value = {'pct': pct[-1], 'pct_4h': pct_4h[-1], 'symbol': symbol, 'hour_turnover': df['turnover'][-1]}
 
             # calculate your signal here.
             if value['pct'] >= config.pump_pct or value['pct_4h'] >= config.pump_pct_4h:
@@ -98,6 +98,7 @@ def get_data(trader: Union[BinanceFutureTrader, BinanceSpotTrader]):
     signal_data['signals'] = signals
     print(signal_data)
 
+
 if __name__ == '__main__':
 
     config.loads('./config.json')
@@ -109,7 +110,6 @@ if __name__ == '__main__':
         trader = BinanceSpotTrader()
     else:
         trader = BinanceFutureTrader()
-
 
     trader.get_exchange_info()
     get_data(trader)  # for testing

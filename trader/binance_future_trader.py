@@ -1,19 +1,3 @@
-"""
-    币安推荐码:  返佣10%
-    https://www.binancezh.pro/cn/register?ref=AIR1GC70
-
-    币安合约推荐码: 返佣10%
-    https://www.binancezh.com/cn/futures/ref/51bitquant
-
-    if you don't have a binance account, you can use the invitation link to register one:
-    https://www.binancezh.com/cn/futures/ref/51bitquant
-
-    or use the inviation code: 51bitquant
-
-    服务器购买地址: https://www.ucloud.cn/site/global.html?invitation_code=C1x2EA81CD79B8C#dongjing
-    The Multi-Pairs Martingle Trading Bot
-"""
-
 from gateway import BinanceFutureHttp, OrderStatus, OrderType, OrderSide
 from utils import config
 from utils import round_to, floor_to
@@ -27,10 +11,7 @@ class BinanceFutureTrader(object):
 
     def __init__(self):
         """
-        免责声明:
         the binance future trader, 币安合约马丁格尔策略.
-        the Martingle strategy in Future will endure a lot of risk， use it before you understand the risk and martingle strategy, and the code may have bugs,
-        Use it at your own risk. We won't ensure you will earn money from this code.
         马丁策略在合约上会有很大的风险，请注意风险, 使用前请熟知该代码，可能会有bugs或者其他未知的风险。
         """
 

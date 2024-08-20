@@ -52,28 +52,53 @@ class BinanceSpotTrader(object):
         self.initial_id = 0
 
     def get_exchange_info(self) -> None:
+        """
+        从交易所获取交易对信息并更新内部字典。
+
+        Args:
+            无。
+
+        Returns:
+            None: 该函数无返回值，但会更新实例的 symbols_dict 属性。
+
+        """
+        # 从HTTP客户端获取交易所信息
         data = self.http_client.get_exchange_info()
         if isinstance(data, dict):
+            # 获取交易对列表，如果没有则返回空列表
             items = data.get('symbols', [])
             for item in items:
 
+                # 获取交易对的符号
                 symbol = item['symbol']
+                # 如果交易对的符号包含'UP'或'DOWN'，则跳过该交易对
                 if symbol.__contains__('UP') or symbol.__contains__('DOWN'):
-                    # won't trade the UP and DOWN token.
+                    # 不会交易UP和DOWN的token.
                     continue
 
+                # 如果交易对的报价资产为'USDT'且状态为'TRADING'
                 if item.get('quoteAsset') == 'USDT' and item.get('status') == "TRADING":
 
+                    # 初始化交易对数据的字典
                     symbol_data = {"symbol": symbol}
+                    # 遍历交易对的过滤条件
                     for filters in item['filters']:
+                        # 如果过滤条件类型为'PRICE_FILTER'
                         if filters['filterType'] == 'PRICE_FILTER':
+                            # 获取最小价格精度，并保存到交易对数据字典中
                             symbol_data['min_price'] = float(filters['tickSize'])
+                        # 如果过滤条件类型为'LOT_SIZE'
                         elif filters['filterType'] == 'LOT_SIZE':
+                            # 获取最小交易数量，并保存到交易对数据字典中
                             symbol_data['min_qty'] = float(filters['stepSize'])
+                        # 如果过滤条件类型为'MIN_NOTIONAL'
                         elif filters['filterType'] == 'MIN_NOTIONAL':
+                            # 获取最小交易金额，并保存到交易对数据字典中
                             symbol_data['min_notional'] = float(filters['minNotional'])
 
+                    # 将交易对数据字典保存到实例的symbols_dict属性中
                     self.symbols_dict[symbol] = symbol_data
+
 
     def get_all_tickers(self):
 
@@ -101,7 +126,6 @@ class BinanceSpotTrader(object):
         delete_sell_orders = []  # the sell orders need to remove from sell_orders[] list
 
         # 买单逻辑,检查成交的情况.
-
         for key in self.buy_orders_dict.keys():
             for buy_order in self.buy_orders_dict.get(key, []):
 

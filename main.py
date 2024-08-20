@@ -40,31 +40,49 @@ from utils.config import signal_data
 
 
 def get_data(trader: Union[BinanceFutureTrader, BinanceSpotTrader]):
-    # traders.symbols is a dict data structure.
+    """
+    根据传入的交易员对象获取数据并计算交易信号。
+
+    Args:
+        trader (Union[BinanceFutureTrader, BinanceSpotTrader]): Binance 交易员实例，可以是现货交易员或未来交易员。
+
+    Returns:
+        None: 此函数无直接返回值，但会更新全局变量 signal_data，包含交易信号的相关信息。
+
+    """
+    # 获取交易对的符号列表
     symbols = trader.symbols_dict.keys()
 
     signals = []
 
-    # we calculate the signal here.
+    # 如果允许列表不为空，则使用允许列表作为交易对符号列表
     if len(config.allowed_lists) > 0:
         symbols = config.allowed_lists
 
     for symbol in symbols:
 
+        # 如果禁止列表不为空，并且交易对符号在禁止列表中，则跳过该交易对
         if len(config.blocked_lists) > 0:
             if symbol.upper() in config.blocked_lists:
                 continue
 
+        # 获取交易对的K线数据
         klines = trader.get_klines(symbol=symbol.upper(), interval=Interval.HOUR_1, limit=100)
         if len(klines) > 0:
-            df = pd.DataFrame(klines, dtype=np.float64,
+            # 将K线数据转换为DataFrame格式
+            df = pd.DataFrame(klines,
+                              dtype=np.float64,
                               columns=['open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time', 'turnover',
-                                       'a2',
-                                       'a3', 'a4', 'a5'])
+                                       'a2', 'a3', 'a4', 'a5']
+                              )
+            # 选择需要的列
             df = df[['open_time', 'open', 'high', 'low', 'close', 'volume', 'turnover']]
+            # 设置时间索引
             df.set_index('open_time', inplace=True)
+            # 转换时间索引并加上8小时时差
             df.index = pd.to_datetime(df.index, unit='ms') + pd.Timedelta(hours=8)
 
+            # 重采样数据到4小时并计算统计量
             df_4hour = df.resample(rule='4H').agg({'open': 'first',
                                                    'high': 'max',
                                                    'low': 'min',
@@ -73,29 +91,35 @@ def get_data(trader: Union[BinanceFutureTrader, BinanceSpotTrader]):
                                                    'turnover': 'sum'
                                                    })
 
-            # print(df)
+            # 打印DataFrame（可选）
+            print(df)
 
-            # calculate the pair's price change is one hour. you can modify the code below.
+            # 计算交易对1小时的价格变化
             pct = df['close'] / df['open'] - 1
             pct_4h = df_4hour['close'] / df_4hour['open'] - 1
 
+            # 存储计算结果
             value = {'pct': pct[-1], 'pct_4h': pct_4h[-1], 'symbol': symbol, 'hour_turnover': df['turnover'][-1]}
 
-            # calculate your signal here.
+            # 计算交易信号
             if value['pct'] >= config.pump_pct or value['pct_4h'] >= config.pump_pct_4h:
-                # the signal 1 mean buy signal.
+                # 信号1表示买入信号
                 value['signal'] = 1
             elif value['pct'] <= -config.pump_pct or value['pct_4h'] <= -config.pump_pct_4h:
                 value['signal'] = -1
             else:
                 value['signal'] = 0
 
+            # 将计算结果添加到信号列表中
             signals.append(value)
 
+    # 按照价格变化率降序排序信号列表
     signals.sort(key=lambda x: x['pct'], reverse=True)
+    # 更新信号数据字典
     signal_data['id'] = signal_data['id'] + 1
     signal_data['time'] = datetime.now()
     signal_data['signals'] = signals
+    # 打印信号数据字典
     print(signal_data)
 
 
@@ -105,7 +129,6 @@ if __name__ == '__main__':
     print(config.blocked_lists)
 
     if config.platform == 'binance_spot':
-        # if you want to trade spot, set the platform to 'binance_spot',  else will trade Binance Future(USDT Base)
         # 如果你交易的是币安现货，就设置config.platform 为 'binance_spot'，否则就交易的是币安永续合约(USDT)
         trader = BinanceSpotTrader()
     else:

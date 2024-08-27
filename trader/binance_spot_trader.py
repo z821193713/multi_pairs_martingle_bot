@@ -1,18 +1,5 @@
 """
-    币安推荐码:  返佣10%
-    https://www.binancezh.pro/cn/register?ref=AIR1GC70
-
-    币安合约推荐码: 返佣10%
-    https://www.binancezh.com/cn/futures/ref/51bitquant
-
-    if you don't have a binance account, you can use the invitation link to register one:
-    https://www.binancezh.com/cn/futures/ref/51bitquant
-
-    or use the inviation code: 51bitquant
-
-    服务器购买地址: https://www.ucloud.cn/site/global.html?invitation_code=C1x2EA81CD79B8C#dongjing
-
-    The Multi-Pairs Martingle Trading Bot
+Created on Sun Jan 24 10:57:36 2023
 """
 
 from gateway import BinanceSpotHttp, OrderStatus, OrderType, OrderSide
@@ -98,7 +85,6 @@ class BinanceSpotTrader(object):
 
                     # 将交易对数据字典保存到实例的symbols_dict属性中
                     self.symbols_dict[symbol] = symbol_data
-
 
     def get_all_tickers(self):
 

@@ -1,18 +1,5 @@
 """
-    币安推荐码:  返佣10%
-    https://www.binancezh.pro/cn/register?ref=AIR1GC70
-
-    币安合约推荐码: 返佣10%
-    https://www.binancezh.com/cn/futures/ref/51bitquant
-
-    if you don't have a binance account, you can use the invitation link to register one:
-    https://www.binancezh.com/cn/futures/ref/51bitquant
-
-    or use the inviation code: 51bitquant
-
-    风险提示: 网格交易在单边行情的时候，会承受比较大的风险，请你了解整个代码的逻辑，然后再使用。
-    RISK NOTE: Grid trading will endure great risk at trend market, please check the code before use it. USE AT YOUR OWN RISK.
-
+Created on Sun Jan 24 10:57:36 2023
 """
 
 import time

@@ -339,8 +339,6 @@ class BinanceFutureTrader(object):
                     index += 1
                     self.place_order(s, signal['pct'], signal['pct_4h'])
 
-
-
     def place_order(self, symbol: str, hour_change: float, four_hour_change: float):
 
         buy_value = config.initial_trade_value

@@ -13,9 +13,8 @@ import time
 import hmac
 import hashlib
 from enum import Enum
-from threading import Thread, Lock
+from threading import Lock
 from datetime import datetime
-
 
 class OrderStatus(object):
     NEW = "NEW"

@@ -102,10 +102,7 @@ class BinanceSpotTrader(object):
 
     def start(self):
         """
-        执行核心逻辑，网格交易的逻辑.
-
-        the grid trading logic
-        :return:
+        检查买单和卖单地成交情况，并处理挂单逻辑。
         """
 
         delete_buy_orders = []  # the buy orders need to remove from buy_orders[] list

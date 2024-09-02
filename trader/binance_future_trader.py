@@ -11,25 +11,24 @@ class BinanceFutureTrader(object):
 
     def __init__(self):
         """
-        the binance future trader, 币安合约马丁格尔策略.
-        马丁策略在合约上会有很大的风险，请注意风险, 使用前请熟知该代码，可能会有bugs或者其他未知的风险。
+        初始化BinanceFutureTrader类
         """
 
         self.http_client = BinanceFutureHttp(api_key=config.api_key, secret=config.api_secret,
                                              proxy_host=config.proxy_host, proxy_port=config.proxy_port)
 
-        self.symbols_dict = {}  # 全市场的交易对. all symbols dicts {'BTCUSDT': value}
+        self.symbols_dict = {}  # 全市场的交易对. {'BTCUSDT': {'min_notional': 100.0, 'min_price': 0.1, 'min_qty': 0.001, 'symbol': 'BTCUSDT'}, 'ETHUSDT': {'min_notional': 20.0, 'min_price': 0.01, 'min_qty': 0.001, 'symbol': 'ETHUSDT'}}
         self.tickers_dict = {}  # 全市场的tickers数据.
 
         self.buy_orders_dict = {}  # 买单字典 buy orders {'symbol': [], 'symbol1': []}
         self.sell_orders_dict = {}  # 卖单字典. sell orders  {'symbol': [], 'symbol1': []}
-        self.positions = Positions('future_positions.json')
+        self.positions = Positions('future_positions.json')  # 持仓信息. positions info
         self.initial_id = 0
 
     def get_exchange_info(self):
         data = self.http_client.exchangeInfo()
 
-        if isinstance(data, dict):
+        if isinstance(data, dict):  #判断是否是dict
             items = data.get('symbols', [])
             for item in items:
                 if item.get('quoteAsset') == 'USDT' and item.get('status') == "TRADING":
@@ -65,12 +64,10 @@ class BinanceFutureTrader(object):
 
     def start(self):
         """
-        执行核心逻辑，网格交易的逻辑.
-
-        the grid trading logic
-        :return:
+        检查买单和卖单地成交情况，并处理挂单逻辑。
+        Returns:
+            无返回值，但会更新内部状态，包括删除已成交的订单，并根据信号数据生成新的挂单。
         """
-
         delete_buy_orders = []  # the buy orders need to remove from buy_orders[] list
         delete_sell_orders = []  # the sell orders need to remove from sell_orders[] list
 
@@ -321,8 +318,7 @@ class BinanceFutureTrader(object):
         for signal in signal_data.get('signals', []):
             s = signal['symbol']
 
-            if signal['signal'] == 1 and index < left_times and signal['symbol'] not in pos_symbols and signal[
-                'hour_turnover'] >= config.turnover_threshold:
+            if signal['signal'] == 1 and index < left_times and signal['symbol'] not in pos_symbols and signal['hour_turnover'] >= config.turnover_threshold:
 
                 # the last one hour's the symbol jump over some percent.
                 if len(config.allowed_lists) > 0 and s in config.allowed_lists:

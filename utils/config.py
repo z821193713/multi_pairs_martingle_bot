@@ -10,7 +10,7 @@ import json
 class Config:
 
     def __init__(self):
-
+        # set http_proxy=http://127.0.0.1:7890 & set https_proxy=http://127.0.0.1:7890
         self.platform: str = "binance_spot"  # trading platform 'binance_spot', or 'binance_future'
         self.api_key: str = None
         self.api_secret: str = None
@@ -24,8 +24,8 @@ class Config:
         self.profit_drawdown_pct = 0.01  # draw down pct
         self.trading_fee = 0.0004  #
         self.max_increase_pos_count = 5
-        self.proxy_host = ""  # proxy host
-        self.proxy_port = 0  # proxy port
+        self.proxy_host = "127.0.0.1"  # proxy host
+        self.proxy_port = 7890  # proxy port
         self.blocked_lists = []  # symbols ['BTCUSDT', 'ETHUSDT', ... ], the symbols in here will not trade.
         self.allowed_lists = []  # symbols ['BTCUSDT', 'ETHUSDT', ... ], if the list contains value(not empty), it will only trade the symbol in this lists
         self.turnover_threshold = 100, 000  # 100k usdt, the trading value should be higher than 100k usdt in an hour.

@@ -1,5 +1,5 @@
 {
-  "platform": "binance_spot",
+  "platform": "binance_future",
   "api_key": "",
   "api_secret": "",
   "max_pairs": 4,

@@ -71,16 +71,29 @@ class OrderSide(Enum):
 class BinanceFutureHttp(object):
 
     def __init__(self, api_key=None, secret=None, host=None, proxy_host="", proxy_port=0, timeout=5, try_counts=5):
-        self.key = api_key
-        self.secret = secret
-        self.host = host if host else "https://fapi.binance.com"
-        self.recv_window = 5000
-        self.timeout = timeout
-        self.order_count_lock = Lock()
-        self.order_count = 1_000_000
+        """
+        初始化BinanceFutureTrader类
+        Args:
+            api_key (str, optional): Binance API密钥. Defaults to None.
+            secret (str, optional): Binance API密钥对应的密钥. Defaults to None.
+            host (str, optional): Binance期货API服务地址. Defaults to "https://fapi.binance.com".
+            proxy_host (str, optional): 代理主机地址. Defaults to "".
+            proxy_port (int, optional): 代理端口号. Defaults to 0.
+            timeout (int, optional): 请求超时时间（秒）. Defaults to 5.
+            try_counts (int, optional): 请求失败尝试的次数. Defaults to 5.
+        Returns:
+            None
+        """
+        self.key = api_key  # Binance API密钥.
+        self.secret = secret  # Binance API密钥对应的密钥.
+        self.host = host if host else "https://fapi.binance.com"  # Binance期货API服务地址.
+        self.recv_window = 5000  # 请求的窗口大小.
+        self.timeout = timeout  # 请求超时时间（秒）.
+        self.order_count_lock = Lock()  # 订单号锁.
+        self.order_count = 1_000_000  # 订单号.
         self.try_counts = try_counts  # 失败尝试的次数.
-        self.proxy_host = proxy_host
-        self.proxy_port = proxy_port
+        self.proxy_host = proxy_host  # 代理主机地址.
+        self.proxy_port = proxy_port  # 代理端口号.
 
     @property
     def proxies(self):

@@ -21,6 +21,9 @@ import numpy as np
 import pandas as pd
 from datetime import datetime
 
+# 假设你的数据存储在 df 中
+pd.set_option('display.float_format', lambda x: '%.4f' % x)  # 保留两位小数的格式化
+
 pd.set_option('expand_frame_repr', False)
 
 from utils.config import signal_data
@@ -29,13 +32,10 @@ from utils.config import signal_data
 def get_data(trader: Union[BinanceFutureTrader, BinanceSpotTrader]):
     """
     根据传入的交易员对象获取数据并计算交易信号。
-
     Args:
         trader (Union[BinanceFutureTrader, BinanceSpotTrader]): Binance 交易员实例，可以是现货交易员或未来交易员。
-
     Returns:
         None: 此函数无直接返回值，但会更新全局变量 signal_data，包含交易信号的相关信息。
-
     """
     # 获取交易对的符号列表
     symbols = trader.symbols_dict.keys()
@@ -67,10 +67,10 @@ def get_data(trader: Union[BinanceFutureTrader, BinanceSpotTrader]):
             # 设置时间索引
             df.set_index('open_time', inplace=True)
             # 转换时间索引并加上8小时时差
-            df.index = pd.to_datetime(df.index, unit='ms') + pd.Timedelta(hours=8)
+            df.index = pd.to_datetime(df.index, unit='ms') + pd.Timedelta(hours=8,unit='h')
 
             # 重采样数据到4小时并计算统计量
-            df_4hour = df.resample(rule='4H').agg({'open': 'first',
+            df_4hour = df.resample(rule='4h').agg({'open': 'first',
                                                    'high': 'max',
                                                    'low': 'min',
                                                    'close': 'last',
@@ -86,8 +86,7 @@ def get_data(trader: Union[BinanceFutureTrader, BinanceSpotTrader]):
             pct_4h = df_4hour['close'] / df_4hour['open'] - 1
 
             # 存储计算结果
-            value = {'pct': pct[-1], 'pct_4h': pct_4h[-1], 'symbol': symbol, 'hour_turnover': df['turnover'][-1]}
-
+            value = {'pct': pct.iloc[-1], 'pct_4h': pct_4h.iloc[-1], 'symbol': symbol, 'hour_turnover': df['turnover'].iloc[-1]}
             # 计算交易信号
             if value['pct'] >= config.pump_pct or value['pct_4h'] >= config.pump_pct_4h:
                 # 信号1表示买入信号
@@ -117,16 +116,16 @@ if __name__ == '__main__':
 
     if config.platform == 'binance_spot':
         # 如果你交易的是币安现货，就设置config.platform 为 'binance_spot'，否则就交易的是币安永续合约(USDT)
-        trader = BinanceSpotTrader()
+        trader = BinanceSpotTrader()  # 实例化现货交易员对象
     else:
-        trader = BinanceFutureTrader()
+        trader = BinanceFutureTrader()  # 实例化永续合约交易员对象
 
-    trader.get_exchange_info()
+    trader.get_exchange_info()  # 获取交易所信息
     get_data(trader)  # for testing
 
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(get_data, trigger='cron', hour='*/1', args=(trader,))
-    scheduler.start()
+    # scheduler = BackgroundScheduler()
+    # scheduler.add_job(get_data, trigger='cron', hour='*/1', args=(trader,))
+    # scheduler.start()
 
     while True:
         time.sleep(10)
